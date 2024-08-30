@@ -32,6 +32,8 @@ Protocol used between them are REST API
 4th – auth-service
 3rd and 4th are microservice for a given website
 
+bridge network
+
 Project demonstration are in bellow link
 https://drive.google.com/file/d/11I5HOHDlVCJ5PEzMNOLiI8sRflhPhP1Y/view?usp=sharing&t=143
 
