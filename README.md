@@ -1,4 +1,4 @@
-Clone this repo
+Clone this repo https://github.com/Heril-Lalwani/Food-Delivery-App.git
 
 Run command "docker-compose up -d --build" in terminial 
 
