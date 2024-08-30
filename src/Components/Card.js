@@ -9,13 +9,8 @@ const Card = (props) => {
   return (
     <div>
       <div className="card mt-3" style={{ width: "16rem", maxHeight: "360px" }}>
-        <img
-          src=""
-          className="card-img-top"
-          alt="..."
-          style={{ height: "120px", objectFit: "fill" }}
-        />
         <div className="card-body">
+          <h6>{props.category}</h6>
           <h5 className="card-title">{props.foodName}</h5>
           <div className="container w-100 p-0" style={{ height: "38px" }}>
             <select
@@ -31,12 +26,8 @@ const Card = (props) => {
             
             <select className="m-2 h-100 w-20 bg-success text-black rounded">
                   
-                    <option> 
-                     
-                    </option>
-                  
                 </select>
-            <div className="d-inline ms-2 h-100 w-20 fs-5">₹asda/-</div>
+            <div className="d-inline ms-2 h-100 w-20 fs-5">{props.price}/-</div>
           </div>
           <hr></hr>
           <button className={`btn btn-success justify-center ms-2 `}>

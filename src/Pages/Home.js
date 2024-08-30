@@ -1,54 +1,114 @@
 import React, { useEffect, useState } from "react";
 import Card from "../Components/Card";
 import Carousel from "../Components/Carousel";
+import { Link } from "react-router-dom";
+import './Home.css'; // Import the CSS file for styling
 
 const Home = () => {
-  const [foodCat, setFoodCat] = useState([]);
-  const [foodItem, setFoodItem] = useState([]);
+  const [foodItems, setFoodItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const [categories, setCategories] = useState([]); // Categories state
+  const [selectedCategory, setSelectedCategory] = useState("All"); // Selected category state
 
   const loadData = async () => {
-    let response = await fetch("http://localhost:5000/api/foodData", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    response = await response.json();
-    setFoodItem(response[0]);
-    setFoodCat(response[1]);
-    // console.log(response[0],response[1]);
+    try {
+      const response = await fetch("http://localhost:5001/api/foodData", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setFoodItems(data);
+        setFilteredItems(data);
+
+        // Extract unique categories from the fetched data
+        const uniqueCategories = [
+          "All",
+          ...new Set(data.map((item) => item.category)),
+        ];
+        setCategories(uniqueCategories);
+      } else {
+        console.error("Expected array but got:", data);
+        setFoodItems([]);
+        setFilteredItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching food items:", error);
+      setError("Failed to load food items.");
+      setFoodItems([]);
+      setFilteredItems([]);
+    } finally {
+      setLoading(false); // Set loading to false after fetch is complete
+    }
   };
+
   useEffect(() => {
     loadData();
   }, []);
 
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setSelectedCategory(category);
+
+    if (category === "All") {
+      setFilteredItems(foodItems);
+    } else {
+      setFilteredItems(foodItems.filter(item => item.category === category));
+    }
+  };
+
   return (
     <div>
       <Carousel />
-      Home
-      <div className="container"  >
+      <h1>Home</h1>
+      <div className="container">
+        <div className="m-3">
+          <label htmlFor="categoryFilter" className="form-label">
+            Filter by Category
+          </label>
+          <select
+            id="categoryFilter"
+            className="form-select"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          >
+            {categories.map((category, index) => (
+              <option key={index} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
         
-           {Object.keys(foodCat).length >0
-            ? foodCat.map((data) => (<div className="row mb-3">
-                <div key={data._id} className="fs-3 m-3">
-                  {data.CategoryName}
-                  </div>
-                <hr/>
-                {
-                  foodItem.filter((item)=> item.CategoryName===data.CategoryName).map(filterItems=>{
-                    return (
-                      <div key={filterItems._id} className="col-12 col-md-6 col-lg-3">
-                        <Card foodName={filterItems.name} options={filterItems.options} imgScr={filterItems.img}></Card>
-                      </div>
-                    )
-                  })
-                }
-               </div>
-                ))
-            : <div>No categories available</div>
-          }
-          
-                <Card />
+        {/* Link to AddItem page */}
+        <div className="m-3">
+          <Link to="/add-item" className="btn btn-primary">
+            Add New Item
+          </Link>
+        </div>
+        
+        {loading && <div>Loading...</div>} {/* Show loading message */}
+        {error && <div className="alert alert-danger">{error}</div>} {/* Show error message */}
+        
+        <div className="food-items-container">
+          {!loading && !error && filteredItems.length > 0 ? (
+            filteredItems.map((item) => (
+              <Card
+                key={item._id}
+                foodName={item.foodName}
+                price={item.price}
+                category={item.category}
+              />
+            ))
+          ) : (
+            !loading && <div>No food items available</div> // Show message when no items are available
+          )}
+        </div>
       </div>
     </div>
   );

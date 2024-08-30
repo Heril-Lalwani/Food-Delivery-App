@@ -7,10 +7,11 @@ const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/loginuser", {
+      const response = await fetch("http://localhost:5002/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -21,22 +22,16 @@ const Login = () => {
         }),
       });
 
-      // if (!response.ok) {
-      //   alert("Failed to create the user. Check your input and try again.");
-      //   return;
-      // }
-
       const json = await response.json();
       console.log(json);
 
-      if (!json.success) {
-        alert("Enter Valid Credentials");
-      } 
-      
-      if(json.success){
-        localStorage.setItem("authToken",json.authToken);
+      if (response.ok && json.token) {
+        localStorage.setItem("authToken", json.token);
         console.log(localStorage.getItem("authToken"));
+        alert("Successfully logged in!");
         navigate('/');
+      } else {
+        alert("Invalid credentials. Please try again.");
       }
     } catch (error) {
       console.error("An error occurred:", error);
@@ -46,9 +41,11 @@ const Login = () => {
   const onChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
+
   return (
     <div>
       <div className="container">
+        <h1>Login Page</h1>
         <form
           className="w-50 m-auto mt-5 border bg-light border-success rounded"
           onSubmit={handleSubmit}
@@ -64,11 +61,12 @@ const Login = () => {
               value={credentials.email}
               onChange={onChange}
               aria-describedby="emailHelp"
+              required
             />
           </div>
 
           <div className="m-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
+            <label htmlFor="password" className="form-label">
               Password
             </label>
             <input
@@ -77,6 +75,7 @@ const Login = () => {
               value={credentials.password}
               onChange={onChange}
               name="password"
+              required
             />
           </div>
           <button type="submit" className="m-3 btn btn-success">

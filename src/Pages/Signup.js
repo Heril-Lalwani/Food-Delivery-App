@@ -1,71 +1,55 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const [credentials, setCredentials] = useState({
-    name: "",
     email: "",
     password: "",
-    geolocation: "",
   });
+  const navigate = useNavigate(); // Import and initialize navigate
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/createuser", {
+      const response = await fetch("http://localhost:5002/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: credentials.name,
-          email: credentials.email,
+          emailadd: credentials.email,
           password: credentials.password,
-          location: credentials.geolocation,
         }),
       });
 
-      if (!response.ok) {
-        alert("Failed to create the user. Check your input and try again.");
-        return;
-      }
+      const json = await response.json(); // Define json here
 
-      const json = await response.json();
-      console.log(json);
-
-      if (!json.success) {
-        alert("Enter Valid Credentials");
+      if (response.ok && json.success) {
+        localStorage.setItem("authToken", json.token); // Make sure your backend sends a token
+        console.log(localStorage.getItem("authToken"));
+        alert("Successfully created an account!");
+        navigate('/'); // Redirect to home or another page
       } else {
-        // User was successfully created, you can navigate to a different page or perform other actions here.
+        alert(json.message || "Failed to create the user. Check your input and try again.");
       }
     } catch (error) {
       console.error("An error occurred:", error);
+      alert("An unexpected error occurred. Please try again.");
     }
   };
 
   const onChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
+
   return (
     <div>
       <div className="container">
+        <h1>New User</h1>
         <form
           className="w-50 m-auto mt-5 border bg-light border-success rounded"
           onSubmit={handleSubmit}
         >
-          <div className="m-3">
-            <label htmlFor="name" className="form-label">
-              Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              name="name"
-              value={credentials.name}
-              onChange={onChange}
-              aria-describedby="emailHelp"
-            />
-          </div>
           <div className="m-3">
             <label htmlFor="email" className="form-label">
               Email address
@@ -77,26 +61,12 @@ const Signup = () => {
               value={credentials.email}
               onChange={onChange}
               aria-describedby="emailHelp"
+              required
             />
-          </div>
-          <div className="m-3">
-            <label htmlFor="address" className="form-label">
-              Address
-            </label>
-              <input
-                type="text"
-                className="form-control"
-                name="geolocation"
-                placeholder='"Click below for fetching address"'
-                value={credentials.geolocation}
-                onChange={onChange}
-                aria-describedby="emailHelp"
-              />
-            
           </div>
 
           <div className="m-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
+            <label htmlFor="password" className="form-label">
               Password
             </label>
             <input
@@ -105,6 +75,7 @@ const Signup = () => {
               value={credentials.password}
               onChange={onChange}
               name="password"
+              required
             />
           </div>
           <button type="submit" className="m-3 btn btn-success">

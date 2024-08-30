@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./
+    container_name: react-ui
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    # Removed `depends_on` for backend as it's no longer part of the configuration
+    networks:
+      - mern-network
+
+  food-display:
+    build: ./fooddisplay
+    container_name: food-display
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URI=mongodb://database:27017/fooddb
+    volumes:
+      - /home/food-backup:/fooddb
+    depends_on:
+      - database
+    networks:
+      - mern-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGO_URI=mongodb://database:27017/authdb
+    volumes:
+      - /home/auth-backup:/authdata
+    depends_on:
+      - database
+    networks:
+      - mern-network
+
+  database:
+    image: mongo
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/mongo-backup:/data/db
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
