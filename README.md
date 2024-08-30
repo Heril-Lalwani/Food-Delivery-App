@@ -19,8 +19,8 @@ It have following page
    
 and this have  2 microservice
 
-1) Auth-service
-2) Food-display and item additions in menu
+1) Auth-service on port 5002
+2) Food-display and item additions in menu on port 5001
 
 Protocol used between them are REST API
 
